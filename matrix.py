@@ -7,8 +7,33 @@ def make_hermite():
     pass
 
 def generate_curve_coefs( p1, p2, p3, p4, t ):
-    
-
+    points = new_matrix(1,4)
+    if (t == 0): # if type = hermite
+        hermite_inverse = new_matrix()
+        hermite_inverse[0][0] = 2
+        hermite_inverse[0][1] = -2
+        hermite_inverse[0][2] = 1
+        hermite_inverse[0][3] = 1
+        hermite_inverse[1][0] = -3
+        hermite_inverse[1][1] = 3
+        hermite_inverse[1][2] = -2
+        hermite_inverse[1][2] = -1
+        hermite_inverse[2][2] = 1
+        hermite_inverse[3][0] = 1
+        points.append(p1)
+        points.append(p2)
+        points.append(p3)
+        points.append(p4)
+        return matrix_mult(hermite_inverse, points)
+    elif (t == 1): # if type = bezier
+        points[0] = (-1*p1) + (3*p2) - (3*p3) + p4
+        points[1] = (3*p1) - (6*p2) + (3*p3)
+        points[2] = (-3*p1) + (3*p2)
+        points[3] = p1
+        return points
+    else:
+        print "Type must be 0 for hermite or 1 for bezier."
+        
 def make_translate( x, y, z ):
     id = new_matrix()
     ident(id)
