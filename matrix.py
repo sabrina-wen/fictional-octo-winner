@@ -1,121 +1,97 @@
 import math
 
 def make_bezier():
-    pass
-
+    return [[-1, 3, -3, 1], [3, -6, 3, 0], [-3, 3, 0, 0], [1, 0, 0, 0]]
 def make_hermite():
-    pass
-
+    return [[2, -3, 0, 1], [-2, 3, 0, 0], [1, -2, 1, 0], [1, -1, 0, 0]]
+    #return matrix_mult(hermite_inverse, points)
 def generate_curve_coefs( p1, p2, p3, p4, t ):
-    points = new_matrix(1,4)
-    if (t == 0): # if type = hermite
-        hermite_inverse = new_matrix()
-        hermite_inverse[0][0] = 2
-        hermite_inverse[0][1] = -2
-        hermite_inverse[0][2] = 1
-        hermite_inverse[0][3] = 1
-        hermite_inverse[1][0] = -3
-        hermite_inverse[1][1] = 3
-        hermite_inverse[1][2] = -2
-        hermite_inverse[1][2] = -1
-        hermite_inverse[2][2] = 1
-        hermite_inverse[3][0] = 1
-        points.append(p1)
-        points.append(p2)
-        points.append(p3)
-        points.append(p4)
-        return matrix_mult(hermite_inverse, points)
-    elif (t == 1): # if type = bezier
-        points[0] = (-1*p1) + (3*p2) - (3*p3) + p4
-        points[1] = (3*p1) - (6*p2) + (3*p3)
-        points[2] = (-3*p1) + (3*p2)
-        points[3] = p1
-        return points
-    else:
-        print "Type must be 0 for hermite or 1 for bezier."
-        
+    points = [[p1, p2, p3, p4]]
+    if (t == 'hermite'):
+		matrix_mult(make_hermite(), points)
+    if (t == 'bezier'):
+		matrix_mult(make_bezier(), points)
+    return points
+
 def make_translate( x, y, z ):
-    id = new_matrix()
-    ident(id)
-    id[0][3] = x
-    id[1][3] = y
-    id[2][3] = z
-    return id
+    t = new_matrix()
+    ident(t)
+    t[3][0] = x
+    t[3][1] = y
+    t[3][2] = z
+    return t
 
 def make_scale( x, y, z ):
-    id = new_matrix()
-    ident(id)
-    id[0][0] = x
-    id[1][1] = y
-    id[2][2] = z
-    return id
+    t = new_matrix()
+    ident(t)
+    t[0][0] = x
+    t[1][1] = y
+    t[2][2] = z
+    return t
 
 def make_rotX( theta ):
-    id = new_matrix()
-    ident(id)
-    id[1][1] = math.cos(theta)
-    id[1][2] = -1 * math.sin(theta)
-    id[2][1] = math.sin(theta)
-    id[2][2] = math.cos(theta)
-    return id
+    t = new_matrix()
+    ident(t)
+    t[1][1] = math.cos(theta)
+    t[2][1] = -1 * math.sin(theta)
+    t[1][2] = math.sin(theta)
+    t[2][2] = math.cos(theta)
+    return t
 
 def make_rotY( theta ):
-    id = new_matrix()
-    ident(id)
-    id[0][0] = math.cos(theta)
-    id[0][2] = math.sin(theta)
-    id[2][0] = -1 * math.sin(theta)
-    id[2][2] = math.cos(theta)
-    return id
+    t = new_matrix()
+    ident(t)
+    t[0][0] = math.cos(theta)
+    t[0][2] = -1 * math.sin(theta)
+    t[2][0] = math.sin(theta)
+    t[2][2] = math.cos(theta)
+    return t
 
 def make_rotZ( theta ):
-    id = new_matrix()
-    ident(id)
-    id[0][0] = math.cos(theta)
-    id[0][1] = -1 * math.sin(theta)
-    id[1][0] = math.sin(theta)
-    id[1][1] = math.cos(theta)
-    return id
+    t = new_matrix()
+    ident(t)
+    t[0][0] = math.cos(theta)
+    t[1][0] = -1 * math.sin(theta)
+    t[0][1] = math.sin(theta)
+    t[1][1] = math.cos(theta)
+    return t
 
 def print_matrix( matrix ):
     s = ''
-    for r in range( len( matrix ) ):
-        for c in range( len(matrix[0]) ):
-            s+= str(matrix[r][c]) + ' '
+    for r in range( len( matrix[0] ) ):
+        for c in range( len(matrix) ):
+            s+= str(matrix[c][r]) + ' '
         s+= '\n'
     print s
 
 def ident( matrix ):
-    for r in range( len( matrix ) ):
-        for c in range( len(matrix[0]) ):
+    for r in range( len( matrix[0] ) ):
+        for c in range( len(matrix) ):
             if r == c:
-                matrix[r][c] = 1
+                matrix[c][r] = 1
             else:
-                matrix[r][c] = 0
+                matrix[c][r] = 0
 
 #m1 * m2 -> m2
 def matrix_mult( m1, m2 ):
-    # init variables
-    curr_col = 0
-    curr_row = 0
-    # convert each col in m2 into a 1d array, dot product w/ each row in m1
-    while (curr_col < len(m2[0]) and curr_row < len(m2)):
-        #print "current coordinate is: (" + str(curr_row) + ", " + str(curr_col) + ")"
-        sum = 0
-        for r in range(len(m2)):
-            sum += m2[r][curr_col] * m1[curr_row][r]
-        m2[curr_row][curr_col] = sum
-        if (curr_col != len(m2[0]) - 1):
-            curr_col = curr_col + 1
-        else:
-            curr_col = 0
-            curr_row = curr_row + 1
-    return m2
+
+    point = 0
+    for row in m2:
+        #get a copy of the next point
+        tmp = row[:]
+
+        for r in range(4):
+            m2[point][r] = (m1[0][r] * tmp[0] +
+                            m1[1][r] * tmp[1] +
+                            m1[2][r] * tmp[2] +
+                            m1[3][r] * tmp[3])
+        point+= 1
+
 
 def new_matrix(rows = 4, cols = 4):
     m = []
-    for r in range( rows ):
+    for c in range( cols ):
         m.append( [] )
-        for c in range( cols ):
-            m[r].append( 0 )
+        for r in range( rows ):
+            m[c].append( 0 )
     return m
